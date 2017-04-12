@@ -1,0 +1,8 @@
+org/openmrs/module/conceptimport/dao/DbSessionManagerImpl.class
+org/openmrs/module/conceptimport/service/ImportConceptDictionaryServiceImpl.class
+org/openmrs/module/conceptimport/ConceptImportActivator.class
+ServicesTest.class
+org/openmrs/module/conceptimport/dao/HibernateConceptDictionaryDAO.class
+org/openmrs/module/conceptimport/service/ImportConceptDictionaryService.class
+org/openmrs/module/conceptimport/dao/HibernateConceptDictionaryDAOImpl.class
+org/openmrs/module/conceptimport/dao/DbSessionManager.class
