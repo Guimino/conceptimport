@@ -10,6 +10,7 @@ import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptName;
+import org.openmrs.api.ConceptNameType;
 
 /**
  * @author Guimino Neves
@@ -29,4 +30,7 @@ public interface HibernateConceptDictionaryDAO {
 
 	Concept findConceptByConceptNameAndClassName(final ConceptName conceptName, final String className)
 			throws NoSuchElementException;
+
+	Concept findConceptByConceptNameAndClassNameAndNameType(final ConceptName conceptName, String className,
+			ConceptNameType conceptNameType) throws NoSuchElementException;
 }

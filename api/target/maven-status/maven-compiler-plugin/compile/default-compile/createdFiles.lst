@@ -1,8 +1,12 @@
-org/openmrs/module/conceptimport/dao/DbSessionManagerImpl.class
-org/openmrs/module/conceptimport/service/ImportConceptDictionaryServiceImpl.class
-org/openmrs/module/conceptimport/ConceptImportActivator.class
+org/openmrs/module/conceptimport/service/ImportTherapeuticGroupServiceImpl.class
+org/openmrs/module/conceptimport/service/ImportPharmaceuticalFormServiceImpl.class
 ServicesTest.class
+org/openmrs/module/conceptimport/ConceptImportActivator.class
+org/openmrs/module/conceptimport/service/ImportGeneralDrugConceptServiceImpl.class
 org/openmrs/module/conceptimport/dao/HibernateConceptDictionaryDAO.class
-org/openmrs/module/conceptimport/service/ImportConceptDictionaryService.class
+org/openmrs/module/conceptimport/service/ImportPharmaceuticalFormService.class
+org/openmrs/module/conceptimport/service/ImportGeneralDrugConceptService.class
+org/openmrs/module/conceptimport/dao/DbSessionManagerImpl.class
+org/openmrs/module/conceptimport/service/ImportTherapeuticGroupService.class
 org/openmrs/module/conceptimport/dao/HibernateConceptDictionaryDAOImpl.class
 org/openmrs/module/conceptimport/dao/DbSessionManager.class

@@ -15,14 +15,18 @@ package org.openmrs.module.conceptimport.web.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.BaseOpenmrsObject;
 import org.openmrs.Concept;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.conceptimport.XlsToEntitiesTransformer;
-import org.openmrs.module.conceptimport.service.ImportConceptDictionaryService;
+import org.openmrs.module.conceptimport.service.ImportGeneralDrugConceptService;
+import org.openmrs.module.conceptimport.service.ImportPharmaceuticalFormService;
+import org.openmrs.module.conceptimport.service.ImportTherapeuticGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -35,12 +39,9 @@ import org.springframework.web.multipart.MultipartFile;
  * The main controller.
  */
 @Controller
-public class ConceptImportManageController {
+public class ConceptImportManageController extends BaseOpenmrsObject {
 
 	protected final Log log = LogFactory.getLog(this.getClass());
-
-	@Autowired
-	private ImportConceptDictionaryService importConceptDictionaryService;
 
 	@Autowired
 	private XlsToEntitiesTransformer xLSToEntitiesTransformer;
@@ -55,9 +56,42 @@ public class ConceptImportManageController {
 
 		final File xlsFile = new File(multipart.getOriginalFilename());
 		multipart.transferTo(xlsFile);
+		List<Concept> concepts = new ArrayList<Concept>();
 
-		final List<Concept> concepts = this.xLSToEntitiesTransformer.toEntitiesFarmaceuticalFormConcepts(xlsFile);
+		// TODO, this is a choice that will came from a combobox select
+		final String option = "3";
 
-		this.importConceptDictionaryService.createPharmaceuticalFormConcepts(concepts);
+		if (option.equals("1")) {
+
+			concepts = this.xLSToEntitiesTransformer.toEntitiesFarmaceuticalFormConcepts(xlsFile);
+			final ImportPharmaceuticalFormService importPharmaceuticalFormService = Context
+					.getService(ImportPharmaceuticalFormService.class);
+			importPharmaceuticalFormService.createConcepts(concepts);
+
+		} else if (option.equals("2")) {
+
+			concepts = this.xLSToEntitiesTransformer.toEntitiesTherapeuticGroupConcepts(xlsFile);
+			final ImportTherapeuticGroupService importTherapeuticGroupService = Context
+					.getService(ImportTherapeuticGroupService.class);
+			importTherapeuticGroupService.createConcepts(concepts);
+		} else if (option.equals("3")) {
+
+			concepts = this.xLSToEntitiesTransformer.toEntitiesGeneralDrugsConcepts(xlsFile);
+			final ImportGeneralDrugConceptService importGeneralDrugConceptService = Context
+					.getService(ImportGeneralDrugConceptService.class);
+			importGeneralDrugConceptService.createConcepts(concepts);
+		}
+	}
+
+	@Override
+	public Integer getId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setId(final Integer id) {
+		// TODO Auto-generated method stub
+
 	}
 }

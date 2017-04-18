@@ -11,6 +11,7 @@ import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptName;
+import org.openmrs.api.ConceptNameType;
 
 /**
  * @author Guimino Neves
@@ -86,5 +87,32 @@ public class HibernateConceptDictionaryDAOImpl implements HibernateConceptDictio
 	@Override
 	public SessionFactory getSessionFactory() {
 		return this.sessionFactory;
+	}
+
+	@Override
+	public Concept findConceptByConceptNameAndClassNameAndNameType(final ConceptName conceptName,
+			final String className, final ConceptNameType conceptNameType) throws NoSuchElementException {
+		final String hql = "select concept from Concept as concept " + " join concept.names as names "
+				+ " join concept.conceptClass as classe " + " where names.conceptNameType = '"
+				+ conceptNameType.toString() + "'" + " and classe.name = :className "
+				+ " and upper(names.name) = :conceptName";
+
+		final Query query = this.sessionFactory.getCurrentSession().createQuery(hql);
+		query.setParameter("conceptName", conceptName.getName().toUpperCase());
+		query.setParameter("className", className);
+
+		final Object uniqueResult = query.uniqueResult();
+
+		if (uniqueResult == null) {
+			throw new NoSuchElementException();
+		}
+
+		return (Concept) uniqueResult;
+
+	}
+	// SHORT
+
+	public static void main(final String[] args) {
+
 	}
 }
