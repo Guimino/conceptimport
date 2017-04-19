@@ -3,9 +3,9 @@
  */
 package org.openmrs.module.conceptimport.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.NonUniqueObjectException;
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptDatatype;
@@ -24,13 +25,14 @@ import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.conceptimport.dao.DbSessionManager;
 import org.openmrs.module.conceptimport.dao.HibernateConceptDictionaryDAO;
-import org.springframework.transaction.annotation.Transactional;
+import org.openmrs.module.conceptimport.exception.EntityExistisException;
+import org.openmrs.module.conceptimport.exception.EntityNotExistsException;
 
 /**
  * @author Guimino Neves
  *
  */
-@Transactional
+
 public class ImportGeneralDrugConceptServiceImpl extends BaseOpenmrsService implements ImportGeneralDrugConceptService {
 
 	protected final Log log = LogFactory.getLog(this.getClass());
@@ -53,124 +55,201 @@ public class ImportGeneralDrugConceptServiceImpl extends BaseOpenmrsService impl
 	@Override
 	public void createConcepts(final List<Concept> codedConcepts) {
 
+		final ConceptService conceptService = Context.getConceptService();
+
 		this.log.info("-- Begin Importing General Drugs Concepts... --");
 
 		this.dbSessionManager.setManualFlushMode();
 
+		final List<Concept> conceptToBeCreated = new ArrayList<Concept>();
+
 		for (final Concept concept : codedConcepts) {
 
-			this.createNewQuestionConcept(concept);
+			try {
+
+				conceptToBeCreated.add(this.setConceptAttributes(conceptService, concept));
+
+			} catch (final DuplicateConceptNameException e) {
+
+				this.log.error("Concept : " + concept, e);
+			}
+
+			catch (final EntityExistisException e) {
+
+				this.log.error("Concept : " + concept, e);
+			}
+
+			catch (final IllegalArgumentException e) {
+
+				this.log.error("Concept : " + concept, e);
+			}
 		}
 
+		this.batchCreateConcepts(conceptToBeCreated);
+
 		this.log.info("--End Importing General Drugs Concepts! --");
+	}
+
+	private void batchCreateConcepts(final List<Concept> concepts) {
+
+		final int count = 1;
+		for (final Concept concept : concepts) {
+
+			try {
+				this.conceptDictionaryDAO.getSessionFactory().getCurrentSession().saveOrUpdate(concept);
+
+				this.log.info("Created Concept --> " + concept + " -> [" + count + "]");
+
+			} catch (final NonUniqueObjectException e) {
+
+				// TODO: Having some strange Exceptions
+				this.log.error("Creating concept with name: " + concept + " -> " + e.getMessage());
+			}
+		}
 	}
 
 	/**
 	 * Creates the Concept which will represent General Term for Drugs
 	 *
+	 * @param conceptService
+	 *
 	 * @return
 	 */
-	private void createNewQuestionConcept(final Concept concept) {
+	private Concept setConceptAttributes(final ConceptService conceptService, final Concept concept) {
 
-		final ConceptService conceptService = Context.getConceptService();
+		final Collection<ConceptName> namesToBeCreated = this.getNamesToBeCreated(concept);
 
-		final ConceptClass conceptClassDrug = conceptService
-				.getConceptClassByName(ImportGeneralDrugConceptService.CONCEPT_CLASS_NAME_DRUG);
+		return this.setAttributes(conceptService, namesToBeCreated);
+	}
 
-		final ConceptDatatype conceptDatatypeNA = conceptService
-				.getConceptDatatypeByName(ImportGeneralDrugConceptService.CONCEPT_DATA_TYPE_NA);
+	private Concept checkDuplications(final ConceptService conceptService,
+			final Collection<ConceptName> namesToBeCreated) {
+		Concept found = null;
 
-		Concept newConcept = new Concept();
-		newConcept.setConceptClass(conceptClassDrug);
-		newConcept.setDatatype(conceptDatatypeNA);
+		final StringBuilder sb = new StringBuilder();
+		for (final ConceptName conceptName : namesToBeCreated) {
 
-		final Collection<ConceptName> namesToCreate = new HashSet<ConceptName>();
-		final Iterator<ConceptName> names = concept.getNames().iterator();
+			try {
 
-		final ConceptName firstName = names.next();
-		final ConceptName secondName = names.next();
+				final String name = conceptName.getName();
+				sb.append(name + " \t");
 
-		namesToCreate.add(new ConceptName(firstName.getName(), new Locale(ImportGeneralDrugConceptService.LOCALE_PT)));
+				found = this.findConceptByName(conceptService, name);
 
-		if ((secondName != null) && (secondName.getName() != null) && (secondName.getName().length() > 2)) {
-
-			namesToCreate.add(new ConceptName(secondName.getName(), Locale.ENGLISH));
+			} catch (final NoSuchElementException e) {
+			}
 		}
-		newConcept.setNames(namesToCreate);
+
+		if (found == null) {
+			throw new EntityNotExistsException(" Concept Not Found  name(s) " + sb.toString());
+		}
+
+		return found;
+	}
+
+	private Concept setAttributes(final ConceptService conceptService, final Collection<ConceptName> namesToBeCreated) {
+
+		final ConceptClass conceptClassDrug = this.conceptDictionaryDAO
+				.findConceptClassByName(ImportGeneralDrugConceptService.CONCEPT_CLASS_NAME_DRUG);
+		final ConceptDatatype conceptDatatypeNA = this.conceptDictionaryDAO
+				.findConceptDataTypeByName(ImportGeneralDrugConceptService.CONCEPT_DATA_TYPE_NA);
 
 		Concept found = null;
-		for (final ConceptName conceptName : namesToCreate) {
+		try {
 
-			// TODO: Review this duplicated code
-			if ((conceptName.getName() != null) && (conceptName.getName().length() > 2)) {
-				try {
-					found = this.findConceptByName(conceptName.getName());
+			found = this.checkDuplications(conceptService, namesToBeCreated);
 
-				} catch (final NoSuchElementException e) {
-
-				}
-			}
+		} catch (final EntityNotExistsException e) {
 		}
 
 		if (found != null) {
 
-			if (!found.getConceptClass().getName().equals(ImportGeneralDrugConceptService.CONCEPT_CLASS_NAME_DRUG)) {
+			if (!found.getConceptClass().equals(conceptClassDrug)) {
 
-				this.log.info("Concept With name " + found.getName().getName()
+				this.log.error("Concept With name " + found.getName().getName()
 						+ " Exists and does not belong to Drug Class. Belongs to Class ["
 						+ found.getConceptClass().getName() + "]");
 
-				System.out.println("Concept With name " + found.getName().getName()
-						+ " Exists and does not belong to Drug Class. Belongs to Class ["
-						+ found.getConceptClass().getName() + "]");
-
-				return;
+				throw new IllegalArgumentException(
+						" Concept :" + found + " does not belong to Drug Class. This belongs to class ["
+								+ found.getConceptClass().getName() + "]");
 			}
 
-			newConcept = found;
+			if (found.isRetired()) {
 
-			if (newConcept.isRetired()) {
-
-				newConcept.setRetired(false);
-				conceptService.saveConcept(newConcept);
+				found.setRetired(false);
+				return found;
 			}
+
+			throw new EntityExistisException(found);
+
 		} else {
 
 			boolean shouldSave = false;
 
-			for (final ConceptName conceptName : namesToCreate) {
+			for (final ConceptName conceptName : namesToBeCreated) {
+				conceptName.setConceptNameType(ConceptNameType.FULLY_SPECIFIED);
+				conceptName.setUuid(UUID.randomUUID().toString());
 
-				// TODO: Review this duplicated code
-				if ((conceptName.getName() != null) && (conceptName.getName().length() > 2)) {
-					conceptName.setConceptNameType(ConceptNameType.FULLY_SPECIFIED);
-					conceptName.setUuid(UUID.randomUUID().toString());
-
-					shouldSave = true;
-				}
+				shouldSave = true;
 			}
+
 			if (shouldSave) {
 
-				try {
+				final Concept newConcept = new Concept();
+				newConcept.setConceptClass(conceptClassDrug);
+				newConcept.setDatatype(conceptDatatypeNA);
+				newConcept.setNames(namesToBeCreated);
 
-					newConcept.setNames(namesToCreate);
+				try {
 					conceptService.saveConcept(newConcept);
+
 					this.log.info("Created Concept --> " + newConcept);
+
+					return newConcept;
 
 				} catch (final DuplicateConceptNameException e) {
 
-					this.log.info(
-							" Found Used Concept Name: " + newConcept.getName().getName() + " Error:" + e.getMessage());
-
-					System.out.println(
+					this.log.error(
 							" Found Used Concept Name: " + newConcept.getName().getName() + " Error:" + e.getMessage());
 				}
 			}
+			throw new DuplicateConceptNameException();
 		}
 	}
 
-	private Concept findConceptByName(final String conceptName) {
+	private Collection<ConceptName> getNamesToBeCreated(final Concept concept) {
 
-		final ConceptService conceptService = Context.getConceptService();
+		final ConceptName firstName = this.getConceptName(concept.getNames(),
+				new Locale(ImportGeneralDrugConceptService.LOCALE_PT));
+		final ConceptName secondName = this.getConceptName(concept.getNames(), Locale.ENGLISH);
+
+		final Collection<ConceptName> namesToCreate = new HashSet<ConceptName>();
+
+		if (firstName != null) {
+			namesToCreate.add(firstName);
+		}
+
+		if (secondName != null) {
+			namesToCreate.add(secondName);
+		}
+
+		return namesToCreate;
+	}
+
+	private ConceptName getConceptName(final Collection<ConceptName> conceptNames, final Locale locale) {
+
+		for (final ConceptName conceptName : conceptNames) {
+
+			if ((conceptName != null) && (conceptName.getName() != null) && (conceptName.getName().length() > 2)
+					&& conceptName.getLocale().equals(locale)) {
+				return conceptName;
+			}
+		}
+		return null;
+	}
+
+	private Concept findConceptByName(final ConceptService conceptService, final String conceptName) {
 
 		final Concept concept = conceptService.getConceptByName(conceptName);
 
@@ -180,5 +259,4 @@ public class ImportGeneralDrugConceptServiceImpl extends BaseOpenmrsService impl
 
 		return concept;
 	}
-
 }

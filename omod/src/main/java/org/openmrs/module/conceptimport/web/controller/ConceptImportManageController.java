@@ -79,6 +79,7 @@ public class ConceptImportManageController extends BaseOpenmrsObject {
 			concepts = this.xLSToEntitiesTransformer.toEntitiesGeneralDrugsConcepts(xlsFile);
 			final ImportGeneralDrugConceptService importGeneralDrugConceptService = Context
 					.getService(ImportGeneralDrugConceptService.class);
+
 			importGeneralDrugConceptService.createConcepts(concepts);
 		}
 	}

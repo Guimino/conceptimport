@@ -9,19 +9,18 @@ import org.openmrs.Concept;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.conceptimport.dao.DbSessionManager;
 import org.openmrs.module.conceptimport.dao.HibernateConceptDictionaryDAO;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Guimino Neves
  *
  */
-@Transactional
+
 public interface ImportGeneralDrugConceptService extends OpenmrsService {
 
 	static final String CONCEPT_CLASS_NAME_DRUG = "Drug";
 	static final String CONCEPT_DATA_TYPE_NA = "N/A";
 
-	static final String LOCALE_PT ="pt";
+	static final String LOCALE_PT = "pt";
 
 	void setConceptDictionaryDAO(HibernateConceptDictionaryDAO hibernateConceptDictionary);
 

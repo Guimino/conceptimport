@@ -113,9 +113,6 @@ public class XlsToEntitiesTransformer {
 
 		final List<Concept> concepts = new ArrayList<Concept>();
 
-		final Set<String> loadedDesignationsPT = new TreeSet<String>();
-		final Set<String> loadedDesignationsEN = new TreeSet<String>();
-
 		if (file.isFile() && file.exists()) {
 			final FileInputStream fileInputStream = new FileInputStream(file);
 			final HSSFWorkbook workbook = new HSSFWorkbook(fileInputStream);
@@ -129,47 +126,34 @@ public class XlsToEntitiesTransformer {
 			for (int i = 6; i < totalRows; i++) {
 				final HSSFRow row = sheet.getRow(i);
 
-				final boolean isRowGroup = row.getCell(0).getStringCellValue().trim()
-						.equals("NEW_GENERIC_CONCEPT_NAME");
+				final String firstcell = row.getCell(0).getStringCellValue().trim();
 
-				if (isRowGroup) {
+				if (firstcell.equals("NEW_GENERIC_CONCEPT_NAME")) {
+
 					final String designationPT = Normalizer
 							.normalize(row.getCell(1).getStringCellValue(), Normalizer.Form.NFD)
 							.replaceAll("[^\\p{ASCII}]", "").toUpperCase().trim();
 
-					final String designationEN = Normalizer
-							.normalize(row.getCell(2).getStringCellValue(), Normalizer.Form.NFD)
-							.replaceAll("[^\\p{ASCII}]", "").toUpperCase().trim().split(",")[0].trim();
+					final String str = Normalizer.normalize(row.getCell(2).getStringCellValue(), Normalizer.Form.NFD)
+							.replaceAll("[^\\p{ASCII}]", "").toUpperCase().trim();
 
-					if (!loadedDesignationsPT.contains(designationPT)
-							&& !loadedDesignationsEN.contains(designationEN)) {
-						final Concept concept = new Concept();
-						final ConceptName conceptNamePT = new ConceptName(designationPT, localPT);
-						final ConceptName conceptNameEN = new ConceptName(designationEN, Locale.ENGLISH);
+					final String designationEN = str.split(",")[0].trim();
 
-						concept.setNames(Arrays.asList(conceptNamePT, conceptNameEN));
-						concepts.add(concept);
+					final Concept concept = new Concept();
+					final ConceptName conceptNamePT = new ConceptName(designationPT, localPT);
+					final ConceptName conceptNameEN = new ConceptName(designationEN, Locale.ENGLISH);
 
-						loadedDesignationsPT.add(designationPT);
-						loadedDesignationsEN.add(designationEN);
-					}
+					concept.setNames(Arrays.asList(conceptNamePT, conceptNameEN));
+					concepts.add(concept);
+
 				}
 			}
 
 			fileInputStream.close();
 			workbook.close();
 		}
+
 		return concepts;
 	}
 
-	public static void main(final String[] args) {
-		final String Str = "";
-
-		final String designationEN = Normalizer
-				.normalize(Str, Normalizer.Form.NFD)
-				.replaceAll("[^\\p{ASCII}]", "").toUpperCase().trim().split(",")[0].trim();
-
-
-		System.out.println(designationEN);
-	}
 }
