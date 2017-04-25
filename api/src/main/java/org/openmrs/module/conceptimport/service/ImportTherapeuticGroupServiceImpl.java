@@ -24,7 +24,6 @@ import org.openmrs.api.ConceptNameType;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
-import org.openmrs.module.conceptimport.dao.DbSessionManager;
 import org.openmrs.module.conceptimport.dao.HibernateConceptDictionaryDAO;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -109,9 +108,9 @@ public class ImportTherapeuticGroupServiceImpl extends BaseOpenmrsService implem
 		final ConceptService conceptService = Context.getConceptService();
 
 		final ConceptClass conceptClassQuestion = conceptService
-				.getConceptClassByName(ImportTherapeuticGroupService.CONCEPT_CLASS_NAME_QUESTION);
+				.getConceptClassByName(ImportConceptConstants.CONCEPT_CLASS_NAME_QUESTION);
 		final ConceptDatatype conceptDatatypeCoded = conceptService
-				.getConceptDatatypeByName(ImportTherapeuticGroupService.CONCEPT_DATA_TYPE_CODED);
+				.getConceptDatatypeByName(ImportConceptConstants.CONCEPT_DATA_TYPE_CODED);
 
 		Concept pharmaceuticalForm = new Concept();
 		pharmaceuticalForm.setConceptClass(conceptClassQuestion);
@@ -179,9 +178,9 @@ public class ImportTherapeuticGroupServiceImpl extends BaseOpenmrsService implem
 		}
 
 		final ConceptClass conceptClassMisc = conceptService
-				.getConceptClassByName(ImportTherapeuticGroupService.CONCEPT_CLASS_NAME_MISC);
+				.getConceptClassByName(ImportConceptConstants.CONCEPT_CLASS_NAME_MISC);
 		final ConceptDatatype conceptDatatypeNA = conceptService
-				.getConceptDatatypeByName(ImportTherapeuticGroupService.CONCEPT_DATA_TYPE_NA);
+				.getConceptDatatypeByName(ImportConceptConstants.CONCEPT_DATA_TYPE_NA);
 
 		for (final Concept codedConcept : toCreate) {
 
@@ -220,11 +219,11 @@ public class ImportTherapeuticGroupServiceImpl extends BaseOpenmrsService implem
 
 	@Override
 	public String getQuestionConceptNamePT() {
-		return ImportTherapeuticGroupService.CONCEPT_QUESTION_NAME_THERAPEUTIC_GROUP_PT;
+		return "GRUPO TERAPEUTICO";
 	}
 
 	@Override
 	public String getQuestionConceptNameEN() {
-		return ImportTherapeuticGroupService.CONCEPT_QUESTION_NAME_THERAPEUTIC_GROUP_EN;
+		return "THERAPEUTIC GROUP";
 	}
 }

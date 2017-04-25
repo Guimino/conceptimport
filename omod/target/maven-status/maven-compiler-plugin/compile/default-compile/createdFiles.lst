@@ -1,3 +1,4 @@
+org/openmrs/module/conceptimport/web/controller/ConceptImportManageController$OptionImport.class
 org/openmrs/module/conceptimport/web/controller/ConceptImportManageController.class
 org/openmrs/module/conceptimport/XlsToEntitiesTransformer.class
 org/openmrs/module/conceptimport/extension/html/AdminList.class

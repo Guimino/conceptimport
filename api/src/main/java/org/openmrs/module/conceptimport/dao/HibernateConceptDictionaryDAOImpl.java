@@ -3,6 +3,9 @@
  */
 package org.openmrs.module.conceptimport.dao;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.hibernate.Query;
@@ -11,7 +14,10 @@ import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptName;
+import org.openmrs.Drug;
 import org.openmrs.api.ConceptNameType;
+import org.openmrs.module.conceptimport.exception.ConceptImportBusinessException;
+import org.openmrs.module.conceptimport.exception.EntityNotFoundException;
 
 /**
  * @author Guimino Neves
@@ -110,9 +116,39 @@ public class HibernateConceptDictionaryDAOImpl implements HibernateConceptDictio
 		return (Concept) uniqueResult;
 
 	}
-	// SHORT
 
-	public static void main(final String[] args) {
+	@SuppressWarnings("unchecked")
+	@Override
+	public Map<Integer, Concept> findConceptsByClass(final String className) {
 
+		final Map<Integer, Concept> results = new HashMap<Integer, Concept>();
+
+		final Query query = this.sessionFactory.getCurrentSession()
+				.createQuery(" select c from Concept c where c.conceptClass.name =:name")
+				.setParameter("name", className);
+
+		final List<Concept> concepts = query.list();
+
+		for (final Concept concept : concepts) {
+
+			results.put(concept.getConceptId(), concept);
+		}
+
+		return results;
+	}
+
+	@Override
+	public Drug findDrugByStrength(final String strength) throws ConceptImportBusinessException {
+
+		final Query query = this.sessionFactory.getCurrentSession()
+				.createQuery(" select d from Drug d where d.strength =:strength").setParameter("strength", strength);
+
+		final Object result = query.uniqueResult();
+
+		if (result == null) {
+			throw new EntityNotFoundException(
+					"Entity " + Drug.class + " was not found for the parameter strength =" + strength);
+		}
+		return (Drug) result;
 	}
 }

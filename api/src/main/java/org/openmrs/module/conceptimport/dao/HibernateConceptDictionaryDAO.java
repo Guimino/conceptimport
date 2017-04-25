@@ -3,6 +3,7 @@
  */
 package org.openmrs.module.conceptimport.dao;
 
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.hibernate.SessionFactory;
@@ -10,7 +11,9 @@ import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptName;
+import org.openmrs.Drug;
 import org.openmrs.api.ConceptNameType;
+import org.openmrs.module.conceptimport.exception.ConceptImportBusinessException;
 
 /**
  * @author Guimino Neves
@@ -33,4 +36,8 @@ public interface HibernateConceptDictionaryDAO {
 
 	Concept findConceptByConceptNameAndClassNameAndNameType(final ConceptName conceptName, String className,
 			ConceptNameType conceptNameType) throws NoSuchElementException;
+
+	Map<Integer, Concept> findConceptsByClass(String className);
+
+	Drug findDrugByStrength(final String strength) throws ConceptImportBusinessException;
 }

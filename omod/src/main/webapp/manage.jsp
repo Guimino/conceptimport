@@ -3,11 +3,20 @@
 
 <%@ include file="template/localHeader.jsp"%>
 
-TESTING...
+
 <div class="box">
 
 	<form method="POST" id="uploadUpdateForm" enctype="multipart/form-data">
-		<input type="file" name="xlsFile" size="40" /> <input type="hidden"
+
+		Option to Import: <select id="optionImport" name="optionImport">
+			<option value="">--- Select ---</option>
+			<c:forEach var="option" items="${optionsToImport}"
+				varStatus="varStatus">
+				<option value="${option}">
+					<spring:message code="${option.description}" />
+				</option>
+			</c:forEach>
+		</select> <input type="file" name="xlsFile" size="40" /> <input type="hidden"
 			name="action" value="upload" /> <input type="hidden" name="update"
 			value="true" /> <input type="submit" value="Carregar" />
 	</form>
