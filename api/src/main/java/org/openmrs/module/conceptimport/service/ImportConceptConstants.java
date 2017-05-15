@@ -9,12 +9,15 @@ package org.openmrs.module.conceptimport.service;
  */
 public interface ImportConceptConstants {
 
-	static final String CONCEPT_CLASS_NAME_MISC = "Misc";
-	static final String CONCEPT_CLASS_NAME_QUESTION = "Question";
-	static final String CONCEPT_CLASS_NAME_DRUG = "Drug";
+	String CONCEPT_CLASS_NAME_MISC = "Misc";
+	String CONCEPT_CLASS_NAME_QUESTION = "Question";
+	String CONCEPT_CLASS_NAME_DRUG = "Drug";
 
-	static final String CONCEPT_DATA_TYPE_NA = "N/A";
-	static final String CONCEPT_DATA_TYPE_CODED = "Coded";
+	String CONCEPT_DATA_TYPE_NA = "N/A";
+	String CONCEPT_DATA_TYPE_CODED = "Coded";
 
-	static final String LOCALE_PT = "pt";
+	String LOCALE_PT = "pt";
+
+	String MESSAGE_DESCRIPTION_PT = "Conceito Gerado automaticamente pelo Super Usuario";
+	String MESSAGE_DESCRIPTION_EN = "Concept Generated automatically by Super User";
 }

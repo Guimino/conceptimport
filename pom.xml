@@ -87,6 +87,12 @@
 
 			<!-- End OpenMRS core -->
 
+			<dependency>
+				<groupId>org.openmrs.module</groupId>
+				<artifactId>pharmacyapi-api</artifactId>
+				<version>1.0.1-SNAPSHOT</version>
+			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 

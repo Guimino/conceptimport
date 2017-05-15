@@ -67,6 +67,7 @@
 
 		<!-- End OpenMRS core -->
 
+
 		<!-- POI : Excel library -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
@@ -97,6 +98,12 @@
 			<groupId>org.apache.xmlbeans</groupId>
 			<artifactId>xmlbeans</artifactId>
 			<version>2.6.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
+			<artifactId>pharmacyapi-api</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>

@@ -20,69 +20,16 @@
 
 <context:component-scan base-package="org.openmrs.module.conceptimport" />
 	
-	<bean id="importPharmaceuticalFormService"
+	<bean id="importConceptService"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager">
 			<ref bean="transactionManager" />
 		</property>
 		<property name="target">
 			<bean
-				class="org.openmrs.module.conceptimport.service.ImportPharmaceuticalFormServiceImpl">
+				class="org.openmrs.module.conceptimport.service.ImportConceptServiceImpl">
 				<property name="conceptDictionaryDAO">
 					<ref bean="conceptDictionaryDAO" />
-				</property>
-				<property name="dbSessionManager">
-					<ref bean="dbSessionManager" />
-				</property>
-				
-			</bean>
-		</property>
-		<property name="preInterceptors">
-			<ref bean="serviceInterceptors" />
-		</property>
-		<property name="transactionAttributeSource">
-			<ref bean="transactionAttributeSource" />
-		</property>
-	</bean>
-	
-	<bean id="importTherapeuticGroupService"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-		<property name="transactionManager">
-			<ref bean="transactionManager" />
-		</property>
-		<property name="target">
-			<bean
-				class="org.openmrs.module.conceptimport.service.ImportTherapeuticGroupServiceImpl">
-				<property name="conceptDictionaryDAO">
-					<ref bean="conceptDictionaryDAO" />
-				</property>
-				<property name="dbSessionManager">
-					<ref bean="dbSessionManager" />
-				</property>
-				
-			</bean>
-		</property>
-		<property name="preInterceptors">
-			<ref bean="serviceInterceptors" />
-		</property>
-		<property name="transactionAttributeSource">
-			<ref bean="transactionAttributeSource" />
-		</property>
-	</bean>
-	
-	<bean id="importGeneralDrugConceptService"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-		<property name="transactionManager">
-			<ref bean="transactionManager" />
-		</property>
-		<property name="target">
-			<bean
-				class="org.openmrs.module.conceptimport.service.ImportGeneralDrugConceptServiceImpl">
-				<property name="conceptDictionaryDAO">
-					<ref bean="conceptDictionaryDAO" />
-				</property>
-				<property name="dbSessionManager">
-					<ref bean="dbSessionManager" />
 				</property>
 				
 			</bean>
@@ -106,34 +53,6 @@
 				<property name="conceptDictionaryDAO">
 					<ref bean="conceptDictionaryDAO" />
 				</property>
-				<property name="dbSessionManager">
-					<ref bean="dbSessionManager" />
-				</property>
-				
-			</bean>
-		</property>
-		<property name="preInterceptors">
-			<ref bean="serviceInterceptors" />
-		</property>
-		<property name="transactionAttributeSource">
-			<ref bean="transactionAttributeSource" />
-		</property>
-	</bean>
-	
-	<bean id="importDosingUnitConceptService"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-		<property name="transactionManager">
-			<ref bean="transactionManager" />
-		</property>
-		<property name="target">
-			<bean
-				class="org.openmrs.module.conceptimport.service.ImportDosingUnitConceptServiceImpl">
-				<property name="conceptDictionaryDAO">
-					<ref bean="conceptDictionaryDAO" />
-				</property>
-				<property name="dbSessionManager">
-					<ref bean="dbSessionManager" />
-				</property>
 				
 			</bean>
 		</property>
@@ -148,40 +67,12 @@
 	<bean parent="serviceContext">
 		<property name="moduleService">
 			<list merge="true">
-				<value>org.openmrs.module.conceptimport.service.ImportGeneralDrugConceptService</value>
-				<ref local="importGeneralDrugConceptService" />
-			</list>
-		</property>
-	</bean>	
-	
-	<bean parent="serviceContext">
-		<property name="moduleService">
-			<list merge="true">
-				<value>org.openmrs.module.conceptimport.service.ImportPharmaceuticalFormService</value>
-				<ref local="importPharmaceuticalFormService" />
+				<value>org.openmrs.module.conceptimport.service.ImportConceptService</value>
+				<ref local="importConceptService" />
 			</list>
 		</property>
 	</bean>
-	
-	<bean parent="serviceContext">
-		<property name="moduleService">
-			<list merge="true">
-				<value>org.openmrs.module.conceptimport.service.ImportTherapeuticGroupService</value>
-				<ref local="importTherapeuticGroupService" />
-			</list>
-		</property>
-	</bean>
-	
-	
-	<bean parent="serviceContext">
-		<property name="moduleService">
-			<list merge="true">
-				<value>org.openmrs.module.conceptimport.service.ImportDosingUnitConceptService</value>
-				<ref local="importDosingUnitConceptService" />
-			</list>
-		</property>
-	</bean>
-	
+
 	<bean parent="serviceContext">
 		<property name="moduleService">
 			<list merge="true">
@@ -196,9 +87,5 @@
 			<ref bean="sessionFactory" />
 		</property>
 	</bean>
-	
-		<bean id="dbSessionManager" class="org.openmrs.module.conceptimport.service.DbSessionManagerImpl">
-        <property name="sessionFactory"><ref bean="dbSessionFactory"/></property>
-    </bean>    
 	
 </beans>

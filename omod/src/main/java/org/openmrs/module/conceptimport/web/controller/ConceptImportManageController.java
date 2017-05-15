@@ -15,23 +15,20 @@ package org.openmrs.module.conceptimport.web.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openmrs.BaseOpenmrsObject;
 import org.openmrs.Concept;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.conceptimport.XlsToEntitiesTransformer;
+import org.openmrs.module.conceptimport.OptionImport;
+import org.openmrs.module.conceptimport.XlsToOpenMRSEntityTransformer;
 import org.openmrs.module.conceptimport.exception.ConceptImportBusinessException;
-import org.openmrs.module.conceptimport.exception.EntityExistisException;
-import org.openmrs.module.conceptimport.service.ImportDosingUnitConceptService;
+import org.openmrs.module.conceptimport.service.ImportConceptService;
 import org.openmrs.module.conceptimport.service.ImportDrugService;
-import org.openmrs.module.conceptimport.service.ImportGeneralDrugConceptService;
-import org.openmrs.module.conceptimport.service.ImportPharmaceuticalFormService;
-import org.openmrs.module.conceptimport.service.ImportTherapeuticGroupService;
 import org.openmrs.module.conceptimport.util.Row;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -46,12 +43,18 @@ import org.springframework.web.multipart.MultipartFile;
  * The main controller.
  */
 @Controller
-public class ConceptImportManageController extends BaseOpenmrsObject {
+public class ConceptImportManageController {
 
 	protected final Log log = LogFactory.getLog(this.getClass());
 
 	@Autowired
-	private XlsToEntitiesTransformer xLSToEntitiesTransformer;
+	private XlsToOpenMRSEntityTransformer xlsToOpenMRSEntityTransformer;
+
+	@Autowired
+	private ImportConceptService importConceptService;
+
+	@Autowired
+	private ImportDrugService importDrugService;
 
 	@RequestMapping(value = "/module/conceptimport/manage", method = RequestMethod.GET)
 	public void manage(final ModelMap model) {
@@ -64,78 +67,35 @@ public class ConceptImportManageController extends BaseOpenmrsObject {
 
 		final File xlsFile = new File(multipart.getOriginalFilename());
 		multipart.transferTo(xlsFile);
-		List<Concept> concepts = new ArrayList<Concept>();
+
+		final long startTime = System.nanoTime();
 
 		if ((optionImport == null)) {
 			throw new IllegalArgumentException("Select Option to import");
 		}
 
-		final String option = optionImport.getCode();
+		if (optionImport.equals(OptionImport.LOAD_CONCEPTS)) {
 
-		if (option.equals("1")) {
+			final List<List<Concept>> entities = this.xlsToOpenMRSEntityTransformer
+					.toEntitiesQuestionCodedConcept(xlsFile);
 
-			concepts = this.xLSToEntitiesTransformer.toEntitiesFarmaceuticalFormConcepts(xlsFile);
-			final ImportPharmaceuticalFormService importPharmaceuticalFormService = Context
-					.getService(ImportPharmaceuticalFormService.class);
-			importPharmaceuticalFormService.createConcepts(concepts);
+			this.importConceptService.load(entities);
 
-		} else if (option.equals("2")) {
+		} else if (optionImport.equals(OptionImport.LOAD_DRUGS)) {
 
-			concepts = this.xLSToEntitiesTransformer.toEntitiesTherapeuticGroupConcepts(xlsFile);
-			final ImportTherapeuticGroupService importTherapeuticGroupService = Context
-					.getService(ImportTherapeuticGroupService.class);
-			importTherapeuticGroupService.createConcepts(concepts);
-
-		}
-
-		else if (option.equals("3")) {
-
-			concepts = this.xLSToEntitiesTransformer.toEntitiesDosingUnitConcept(xlsFile);
-			final ImportDosingUnitConceptService importDosingUnitConceptService = Context
-					.getService(ImportDosingUnitConceptService.class);
+			final List<Row> drugs = this.xlsToOpenMRSEntityTransformer.toEntitiesDrug(xlsFile);
 
 			try {
-				importDosingUnitConceptService.load(concepts);
-			} catch (final ConceptImportBusinessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else if (option.equals("4")) {
-
-			concepts = this.xLSToEntitiesTransformer.toEntitiesGeneralDrugsConcepts(xlsFile);
-			final ImportGeneralDrugConceptService importGeneralDrugConceptService = Context
-					.getService(ImportGeneralDrugConceptService.class);
-			try {
-				importGeneralDrugConceptService.createConcepts(concepts);
-			} catch (final EntityExistisException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		} else if (option.equals("5")) {
-
-			final List<Row> drugs = this.xLSToEntitiesTransformer.loadDrugRows(xlsFile);
-
-			final ImportDrugService drugService = Context.getService(ImportDrugService.class);
-
-			try {
-				drugService.load(drugs);
+				this.importDrugService.load(drugs);
 			} catch (final ConceptImportBusinessException e) {
 				e.printStackTrace();
 			}
 		}
-	}
+		final long stopTime = System.nanoTime();
 
-	@Override
-	public Integer getId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		final NumberFormat formatter = new DecimalFormat("#0.00000");
 
-	@Override
-	public void setId(final Integer id) {
-		// TODO Auto-generated method stub
-
+		this.log.info(" Time spent on execution: " + formatter.format((stopTime - startTime) / 1000d) + " seconds");
 	}
 
 	@ModelAttribute("optionsToImport")
@@ -143,35 +103,4 @@ public class ConceptImportManageController extends BaseOpenmrsObject {
 
 		return Arrays.asList(OptionImport.values());
 	}
-
-	public enum OptionImport {
-
-		LOAD_PHARMACEUTIC_FORM("1", "conceptimport.load.concept.pharmaceutical.form"),
-
-		LOAD_THERAPEUTIC_GROUP("2", "conceptimport.load.concept.therapeutic.group"),
-
-		LOAD_DOSAGE_UNIT("3", "conceptimport.load.concept.dosage.unit"),
-
-		LOAD_GENERIC_DRUG("4", "conceptimport.load.concept.generic.drug"),
-
-		LOAD_DRUGS("5", "conceptimport.load.drugs");
-
-		private final String code;
-		private final String description;
-
-		OptionImport(final String code, final String description) {
-			this.code = code;
-			this.description = description;
-		}
-
-		public String getCode() {
-			return this.code;
-		}
-
-		public String getDescription() {
-
-			return this.description;
-		}
-	}
-
 }

@@ -5,6 +5,7 @@ package org.openmrs.module.conceptimport.dao;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -18,6 +19,8 @@ import org.openmrs.Drug;
 import org.openmrs.api.ConceptNameType;
 import org.openmrs.module.conceptimport.exception.ConceptImportBusinessException;
 import org.openmrs.module.conceptimport.exception.EntityNotFoundException;
+import org.openmrs.module.conceptimport.service.ImportConceptConstants;
+import org.openmrs.module.pharmacyapi.api.model.DrugItem;
 
 /**
  * @author Guimino Neves
@@ -57,6 +60,10 @@ public class HibernateConceptDictionaryDAOImpl implements HibernateConceptDictio
 
 	@Override
 	public boolean hasConceptAnswered(final Concept question, final Concept answer) {
+
+		if ((answer == null) || (answer.getConceptId() == null)) {
+			return false;
+		}
 
 		final String hql = "select conceptAnswer from ConceptAnswer conceptAnswer "
 				+ " where conceptAnswer.concept.conceptId = :questionId "
@@ -119,9 +126,9 @@ public class HibernateConceptDictionaryDAOImpl implements HibernateConceptDictio
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Map<Integer, Concept> findConceptsByClass(final String className) {
+	public Map<String, Concept> findConceptsByClass(final String className) {
 
-		final Map<Integer, Concept> results = new HashMap<Integer, Concept>();
+		final Map<String, Concept> results = new HashMap<String, Concept>();
 
 		final Query query = this.sessionFactory.getCurrentSession()
 				.createQuery(" select c from Concept c where c.conceptClass.name =:name")
@@ -131,24 +138,42 @@ public class HibernateConceptDictionaryDAOImpl implements HibernateConceptDictio
 
 		for (final Concept concept : concepts) {
 
-			results.put(concept.getConceptId(), concept);
+			results.put(concept.getName(new Locale(ImportConceptConstants.LOCALE_PT)).getName(), concept);
 		}
 
 		return results;
 	}
 
 	@Override
-	public Drug findDrugByStrength(final String strength) throws ConceptImportBusinessException {
+	public Drug findDrugByFnmCode(final String fnmCode) throws ConceptImportBusinessException {
 
 		final Query query = this.sessionFactory.getCurrentSession()
-				.createQuery(" select d from Drug d where d.strength =:strength").setParameter("strength", strength);
+				.createSQLQuery("select * from phm_drug_items where fnm_code = :fnmCode").addEntity(DrugItem.class)
+				.setParameter("fnmCode", fnmCode);
 
-		final Object result = query.uniqueResult();
+		final DrugItem drugItem = (DrugItem) query.uniqueResult();
 
-		if (result == null) {
+		if (drugItem == null) {
 			throw new EntityNotFoundException(
-					"Entity " + Drug.class + " was not found for the parameter strength =" + strength);
+					"Entity " + Drug.class + " was not found for the parameters fnmCode = " + fnmCode);
 		}
-		return (Drug) result;
+
+		System.out.println("FOUND DRUG: " + drugItem);
+
+		return drugItem.getDrug();
 	}
+
+	@Override
+	public Concept findConceptByName(final String name) {
+
+		final String hql = "select concept from Concept as concept join concept.names as names "
+				+ " where  names.conceptNameType = 'FULLY_SPECIFIED' and upper(names.name) = :name";
+
+		final Query query = this.sessionFactory.getCurrentSession().createQuery(hql);
+		query.setParameter("name", name.toUpperCase());
+
+		return (Concept) query.uniqueResult();
+
+	}
+
 }

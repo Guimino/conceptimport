@@ -6,6 +6,7 @@
     <project>openmrs-api</project>
     <project>openmrs-web</project>
     <project>openmrs-test</project>
+    <project>pharmacyapi-api</project>
   </projects>
   <buildSpec>
     <buildCommand>

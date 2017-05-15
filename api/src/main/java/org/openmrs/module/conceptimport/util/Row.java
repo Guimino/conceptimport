@@ -6,112 +6,52 @@ public class Row implements Serializable {
 
 	private static final long serialVersionUID = -8463201223444297627L;
 
-	private String fnm;
-	private String designationPT;
-	private String designationEN;
-	private String completeDesignation;
-	private String pharmaceuticForm;
-	private String dosage;
-	private String therapeuticGroup;
-	private Integer genericDrugConceptId;
-	private Integer pharmaceuticFormConceptId;
-	private Integer dosageConceptId;
+	private final String fnm;
+	private final String designationPT;
+	private final String designationEN;
+	private final String pharmaceuticForm;
+	private final String dosage;
+	private final String therapeuticGroup;
+	private final String classGroup;
 
-	public Row(final String fnm, final String designationPT, final String designationEN,
-			final String completeDesignation, final String pharmaceuticForm, final String dosage,
-			final String therapeuticGroup, final Integer genericDrugConceptId, final Integer pharmaceuticFormConceptId,
-			final Integer dosageConceptId) {
+	public Row(final String fnm, final String designationPT, final String designationEN, final String pharmaceuticForm,
+			final String dosage, final String therapeuticGroup, final String classGroup) {
 		super();
 		this.fnm = fnm;
 		this.designationPT = designationPT;
 		this.designationEN = designationEN;
-		this.completeDesignation = completeDesignation;
 		this.pharmaceuticForm = pharmaceuticForm;
 		this.dosage = dosage;
 		this.therapeuticGroup = therapeuticGroup;
-		this.genericDrugConceptId = genericDrugConceptId;
-		this.pharmaceuticFormConceptId = pharmaceuticFormConceptId;
-		this.dosageConceptId = dosageConceptId;
+		this.classGroup = classGroup;
 	}
 
 	public String getFnm() {
 		return this.fnm;
 	}
 
-	public void setFnm(final String fnm) {
-		this.fnm = fnm;
-	}
-
 	public String getDesignationPT() {
 		return this.designationPT;
-	}
-
-	public void setDesignationPT(final String designationPT) {
-		this.designationPT = designationPT;
 	}
 
 	public String getDesignationEN() {
 		return this.designationEN;
 	}
 
-	public void setDesignationEN(final String designationEN) {
-		this.designationEN = designationEN;
-	}
-
-	public String getCompleteDesignation() {
-		return this.completeDesignation;
-	}
-
-	public void setCompleteDesignation(final String completeDesignation) {
-		this.completeDesignation = completeDesignation;
-	}
-
 	public String getPharmaceuticForm() {
 		return this.pharmaceuticForm;
-	}
-
-	public void setPharmaceuticForm(final String pharmaceuticForm) {
-		this.pharmaceuticForm = pharmaceuticForm;
 	}
 
 	public String getDosage() {
 		return this.dosage;
 	}
 
-	public void setDosage(final String dosage) {
-		this.dosage = dosage;
-	}
-
 	public String getTherapeuticGroup() {
 		return this.therapeuticGroup;
 	}
 
-	public void setTherapeuticGroup(final String therapeuticGroup) {
-		this.therapeuticGroup = therapeuticGroup;
-	}
-
-	public Integer getGenericDrugConceptId() {
-		return this.genericDrugConceptId;
-	}
-
-	public void setGenericDrugConceptId(final Integer genericDrugConceptId) {
-		this.genericDrugConceptId = genericDrugConceptId;
-	}
-
-	public Integer getPharmaceuticFormConceptId() {
-		return this.pharmaceuticFormConceptId;
-	}
-
-	public void setPharmaceuticFormConceptId(final Integer pharmaceuticFormConceptId) {
-		this.pharmaceuticFormConceptId = pharmaceuticFormConceptId;
-	}
-
-	public Integer getDosageConceptId() {
-		return this.dosageConceptId;
-	}
-
-	public void setDosageConceptId(final Integer dosageConceptId) {
-		this.dosageConceptId = dosageConceptId;
+	public String getClassGroup() {
+		return this.classGroup;
 	}
 
 	@Override
@@ -145,8 +85,7 @@ public class Row implements Serializable {
 	@Override
 	public String toString() {
 		return "Row [fnm=" + this.fnm + ", designationPT=" + this.designationPT + ", designationEN="
-				+ this.designationEN + ", completeDesignation=" + this.completeDesignation + ", pharmaceuticForm="
-				+ this.pharmaceuticForm + ", dosage=" + this.dosage + ", therapeuticGroup=" + this.therapeuticGroup
-				+ "]";
+				+ this.designationEN + ", pharmaceuticForm=" + this.pharmaceuticForm + ", dosage=" + this.dosage
+				+ ", therapeuticGroup=" + this.therapeuticGroup + ", classGroup=" + this.classGroup + "]";
 	}
 }

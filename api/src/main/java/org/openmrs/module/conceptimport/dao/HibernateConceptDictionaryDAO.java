@@ -37,7 +37,10 @@ public interface HibernateConceptDictionaryDAO {
 	Concept findConceptByConceptNameAndClassNameAndNameType(final ConceptName conceptName, String className,
 			ConceptNameType conceptNameType) throws NoSuchElementException;
 
-	Map<Integer, Concept> findConceptsByClass(String className);
+	Map<String, Concept> findConceptsByClass(String className);
 
-	Drug findDrugByStrength(final String strength) throws ConceptImportBusinessException;
+	Drug findDrugByFnmCode(final String fnmCode) throws ConceptImportBusinessException;
+
+	Concept findConceptByName(final String name);
+
 }
