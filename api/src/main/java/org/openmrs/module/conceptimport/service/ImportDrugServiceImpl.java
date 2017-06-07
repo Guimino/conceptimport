@@ -123,18 +123,19 @@ public class ImportDrugServiceImpl extends BaseOpenmrsService implements ImportD
 						drug.setUuid(UUID.randomUUID().toString());
 						drug.setName(this.getFormattedDrugName(row, pharmaceuticFormConcept));
 
-						final DrugItem drugItem = new DrugItem();
-						drugItem.setDrug(drug);
-						drugItem.setFnmCode(row.getFnm());
-						drugItem.setPharmaceuticalForm(pharmaceuticFormConcept);
-						drugItem.setTherapeuticGroup(terapeuticGroup);
-						drugItem.setPharmaceuticalClass(terapeuticClass);
-						drugItem.setUuid(UUID.randomUUID().toString());
-						drugItem.setId(null);
-
 						try {
 							final Session session = this.conceptDictionaryDAO.getSessionFactory().getCurrentSession();
 							drug = this.conceptService.saveDrug(drug);
+
+							final DrugItem drugItem = new DrugItem();
+							drugItem.setDrug(drug);
+							drugItem.setFnmCode(row.getFnm());
+							drugItem.setPharmaceuticalForm(pharmaceuticFormConcept);
+							drugItem.setTherapeuticGroup(terapeuticGroup);
+							drugItem.setTherapeuticClass(terapeuticClass);
+							drugItem.setUuid(UUID.randomUUID().toString());
+							drugItem.setDrugItemId(null);
+
 							session.save(drugItem);
 							session.flush();
 
@@ -156,7 +157,7 @@ public class ImportDrugServiceImpl extends BaseOpenmrsService implements ImportD
 
 					} else {
 
-						this.log.info("Row not loaded --> " + row);
+						System.out.println("Row not loaded --> " + row);
 					}
 				}
 			}
@@ -180,7 +181,7 @@ public class ImportDrugServiceImpl extends BaseOpenmrsService implements ImportD
 				.getConceptDatatypeByName(ImportConceptConstants.CONCEPT_DATA_TYPE_NA);
 
 		this.cachedMapGeneralConceptDrugs
-		.putAll(this.conceptDictionaryDAO.findConceptsByClass(ImportConceptConstants.CONCEPT_CLASS_NAME_DRUG));
+				.putAll(this.conceptDictionaryDAO.findConceptsByClass(ImportConceptConstants.CONCEPT_CLASS_NAME_DRUG));
 		this.CONCEPT_NA = this.conceptService.getConceptByName(ImportConceptConstants.CONCEPT_DATA_TYPE_NA);
 		this.mapConceptDosageAll.putAll(this.getAllConceptByQuestion("UNIDADE DE DOSAGEM"));
 		this.mapConceptPharmaceuticFormAll.putAll(this.getAllConceptByQuestion("FORMA FARMACEUTICA"));
